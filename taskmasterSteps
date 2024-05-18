@@ -1,0 +1,17 @@
+Shell :
+
+history 
+auto-completation
+status + status "program name"
+Start "program name"
+Stop "program name"
+Restart "program name"
+Reload confs
+Stop "main program"
+
+
+Server :
+
+Parsing + Rapport logique entre les variables
+daemon
+ 
