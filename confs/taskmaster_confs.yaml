@@ -1,0 +1,33 @@
+- command: "/usr/local/bin/nginx -c /etc/nginx/nginx.conf"
+  numofprocs: 1
+  autostart: true
+  autorestart: "unexpected"
+  exitcodes: [0, 2]
+  starttime: 5
+  startretry: 3
+  stopsignal: "TERM"
+  timetostop: 10
+  stdout: "/var/log/nginx/stdout.log"
+  stderr: "/var/log/nginx/stderr.log"
+  env:
+    VAR1: "value1"
+    VAR2: "value2"
+  workdir: "/usr/local/nginx"
+  umask: "022"
+
+- command: "/usr/local/bin/php-fpm"
+  numofprocs: 2
+  autostart: true
+  autorestart: "always"
+  exitcodes: [0]
+  starttime: 3
+  startretry: 2
+  stopsignal: "QUIT"
+  timetostop: 5
+  stdout: "/var/log/php-fpm/stdout.log"
+  stderr: "/var/log/php-fpm/stderr.log"
+  env:
+    VAR3: "value3"
+    VAR4: "value4"
+  workdir: "/usr/local/php-fpm"
+  umask: "027"

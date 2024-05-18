@@ -1,3 +1,5 @@
+
+
 Shell :
 
 history 
@@ -12,6 +14,12 @@ Stop "main program"
 
 Server :
 
-Parsing + Rapport logique entre les variables
 daemon
+(...)
  
+-----------------------------------
+
+Parsing :
+
+Parse ok but need testings
+Rapport logiques
