@@ -21,7 +21,8 @@ Envoie et reception des command avec un protocol UNIX
 -----------------------------------
 [En cours]
 
-Parsing :
+
+server Parsing :
 
 
 Parse ok mais neccessite des test
@@ -29,7 +30,7 @@ Rapport logiques && gestion des variable : http://supervisord.org/configuration.
 
 
 
-Commande shell :
+client Commande shell :
 
 status + status "program name"
 Start "program name"

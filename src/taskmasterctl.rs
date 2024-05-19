@@ -6,30 +6,26 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/19 01:19:09 by jbettini          #+#    #+#             */
-/*   Updated: 2024/05/19 05:29:01 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/05/19 06:43:16 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-use std::io::{self ,Write ,stdin};
-
-fn get_input() -> String {
-    print!("$ ");
-    io::stdout().flush().expect("Failed to flush stdout");
-    let mut input = String::new();
-    stdin().read_line(&mut input).expect("Error when reading on stdin");
-    input
-}
+use rustyline::error::ReadlineError;
+use rustyline::{DefaultEditor};
 
 fn print_help() {
     println!(
         "Commands accepted:
-         - help => print all the accepted commands
-         - status => show programs status
-         - reload => reload the main program
-         - start \"program name\" => starting a program
-         - restart \"program name\" => restarting a program
-         - stop \"program name\" => stopping a program
-         - stop \"daemon\" => stopping the main program"
+        - help => print all the accepted commands
+        - status => show programs status
+        - reload => reload the main program
+        - start \"program name\" => starting a program
+        - restart \"program name\" => restarting a program
+        - stop \"program name\" => stopping a program
+        - stop \"daemon\" => stopping the main program
+        
+        - Use exit or ctrl + D to Quit the program"
+         
     );
 }
 
@@ -86,22 +82,47 @@ fn status_command() {
 
 
 pub fn launch() {
+    let mut rl = DefaultEditor::new().expect("Error: Init ReadLine");
+    #[cfg(feature = "with-file-history")]
+    if rl.load_history("history.txt").is_err() {
+        println!("No previous history.");
+    }
     loop {
-        let input: String = get_input();
-        let splited_input: Vec<&str> = input.split_whitespace().collect();
-        if input.is_empty() {
-            println!("Quit");
-            break;
-        }
-        match splited_input.get(0) {
-            Some(&"start") => treat_args_commands(splited_input, "start"),
-            Some(&"restart") => treat_args_commands(splited_input, "restart"),
-            Some(&"stop") => treat_args_commands(splited_input, "stop"),
-            Some(&"status") => treat_args_commands(splited_input, "status"),
-            Some(&"reload") => treat_args_commands(splited_input, "reload"),
-            Some(&"help") => print_help(),
-            None => println!("No command entered, use help!"),
-            _ => println!("incorrect command :{} :Use help !", splited_input.get(0).unwrap()),
+        let read_line = rl.readline("$$> ");
+        match read_line {
+            Ok(line) => { 
+                let _ = rl.add_history_entry(line.as_str());
+                let splited_input: Vec<&str> = line.split_whitespace().collect();
+                match splited_input.get(0) {
+                    Some(&"start") => treat_args_commands(splited_input, "start"),
+                    Some(&"restart") => treat_args_commands(splited_input, "restart"),
+                    Some(&"stop") => treat_args_commands(splited_input, "stop"),
+                    Some(&"status") => treat_args_commands(splited_input, "status"),
+                    Some(&"reload") => treat_args_commands(splited_input, "reload"),
+                    Some(&"help") => print_help(),
+                    Some(&"exit") => {
+                        println!("Quit");
+                        break;
+                    },
+                    None => println!("No command entered, use help!"),
+                    _ => println!("incorrect command :{} :Use help !", splited_input.get(0).unwrap()),
+                }
+            },
+            Err(ReadlineError::Interrupted) => {
+                println!("CTRL-C");
+                break
+            },
+            Err(ReadlineError::Eof) => {
+                println!("CTRL-D");
+                break
+            },
+            Err(err) => {
+                println!("Error: {:?}", err);
+                break
+            }
+            
         }
     }
+    #[cfg(feature = "with-file-history")]
+    rl.save_history("history.txt");
 }
