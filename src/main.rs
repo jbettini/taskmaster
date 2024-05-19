@@ -1,9 +1,7 @@
-mod parsing;
-use crate::parsing::parsing::ProgramConfig;
+mod taskmasterd;
+mod taskmasterctl;
 
 fn main() {
-    let configs :Vec<ProgramConfig> = ProgramConfig::new("./confs/taskmaster_confs.yaml");
-    for config in configs {
-        println!("{:?}\n", config);
-    }
+    // taskmasterd::launch()
+    taskmasterctl::launch();
 }

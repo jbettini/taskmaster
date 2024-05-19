@@ -1,4 +1,5 @@
-- command: "/usr/local/bin/nginx -c /etc/nginx/nginx.conf"
+- 
+  command: "/usr/local/bin/nginx -c /etc/nginx/nginx.conf"
   numofprocs: 1
   autostart: true
   autorestart: "unexpected"

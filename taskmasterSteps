@@ -2,24 +2,38 @@
 
 Shell :
 
+Envoie et reception des command avec un protocol UNIX
+
 history 
 auto-completation
-status + status "program name"
-Start "program name"
-Stop "program name"
-Restart "program name"
-Reload confs
-Stop "main program"
+
+
+
+
 
 
 Server :
 
 daemon
+Envoie et reception des command avec un protocol UNIX
 (...)
  
 -----------------------------------
+[En cours]
 
 Parsing :
 
-Parse ok but need testings
-Rapport logiques
+
+Parse ok mais neccessite des test
+Rapport logiques && gestion des variable : http://supervisord.org/configuration.html
+
+
+
+Commande shell :
+
+status + status "program name"
+Start "program name"
+Stop "program name"
+Restart "program name"
+Reload "main program"
+Stop "main program"
