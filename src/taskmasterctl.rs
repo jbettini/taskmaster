@@ -6,7 +6,7 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/19 01:19:09 by jbettini          #+#    #+#             */
-/*   Updated: 2024/05/19 06:43:16 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/05/20 23:50:52 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,5 +124,6 @@ pub fn launch() {
         }
     }
     #[cfg(feature = "with-file-history")]
+    
     rl.save_history("history.txt");
 }
