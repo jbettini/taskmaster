@@ -1,22 +1,17 @@
+Client :
 
-
-Shell :
-
-Envoie et reception des command avec un protocol UNIX
-
-history 
-auto-completation
-
-
-
-
+gerer pour chaque commande le retour du serveur
 
 
 Server :
 
-daemon
-Envoie et reception des command avec un protocol UNIX
-(...)
+Faire le retour pour chaque commande 
+
+Lancer un daemon qui va s'occuper de la gestion de tout les process
+Faire toute les commandes
+
+
+
  
 -----------------------------------
 [En cours]
@@ -24,17 +19,5 @@ Envoie et reception des command avec un protocol UNIX
 
 server Parsing :
 
-
-Parse ok mais neccessite des test
+Lancer un thread pour chaque client qui se connecte
 Rapport logiques && gestion des variable : http://supervisord.org/configuration.html
-
-
-
-client Commande shell :
-
-status + status "program name"
-Start "program name"
-Stop "program name"
-Restart "program name"
-Reload "main program"
-Stop "main program"

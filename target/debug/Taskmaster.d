@@ -1,0 +1,1 @@
+/Users/xtem/Desktop/Taskmaster/target/debug/Taskmaster: /Users/xtem/Desktop/Taskmaster/src/main.rs /Users/xtem/Desktop/Taskmaster/src/taskmasterctl/command.rs /Users/xtem/Desktop/Taskmaster/src/taskmasterctl.rs /Users/xtem/Desktop/Taskmaster/src/taskmasterd/parsing.rs /Users/xtem/Desktop/Taskmaster/src/taskmasterd/server.rs /Users/xtem/Desktop/Taskmaster/src/taskmasterd.rs
