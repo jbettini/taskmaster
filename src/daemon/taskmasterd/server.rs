@@ -6,13 +6,13 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/26 05:11:11 by jbettini          #+#    #+#             */
-/*   Updated: 2024/05/26 05:26:37 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/05/27 06:12:39 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 use std::os::unix::net::{UnixStream, UnixListener};
 use std::io::{Read, Write};
-use std::{thread, time::Duration};
+use std::thread;
 use ctrlc;
 use std::io;
 
@@ -59,6 +59,9 @@ pub fn launch_server() {
             .expect("Failed at accepting a connection on the unix listener");
         println!("New connection accepted");
         // need to bee handled in a thread or a process
-        handle_stream(unix_stream).expect("Failed to handle stream");
+        thread::spawn(move || handle_stream(unix_stream).expect("Failed to handle stream"));
+        // # archictetural choice if we want to have only one client at the same time 
+        // .join()
+        // .expect("Failed to create a thread for the client connexion");
     }
 }

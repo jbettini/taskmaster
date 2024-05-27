@@ -1,19 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   server.rs                                          :+:      :+:    :+:   */
+/*   taskmasterd.rs                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/26 05:49:43 by jbettini          #+#    #+#             */
-/*   Updated: 2024/05/26 06:09:25 by jbettini         ###   ########.fr       */
+/*   Created: 2024/05/19 01:06:23 by jbettini          #+#    #+#             */
+/*   Updated: 2024/05/27 06:11:36 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-mod server {
-    pub mod taskmasterd;
-}
+mod parsing; 
+mod server;
+use parsing::ProgramConfig;
 
-fn main() {
-    server::taskmasterd::taskmasterd();
+pub fn taskmasterd() {
+    server::launch_server();
+    // #need to set it in the daemon
+    // let configs :Vec<ProgramConfig> = ProgramConfig::new("./confs/taskmaster_confs.yaml");
+    // for config in configs {
+    //     println!("{:?}\n", config);
+    // } 
 }
