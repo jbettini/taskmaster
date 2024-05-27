@@ -1,23 +1,22 @@
 Client :
 
+communication entre client et daemon
 gerer pour chaque commande le retour du serveur
 
 
-Server :
+------------------------
+daemon : 
+
+Rapport logiques et gestion des variable du co : http://supervisord.org/configuration.html
+
+------------------------
+Server:
 
 Faire le retour pour chaque commande : https://emmanuelbosquet.com/2022/whatsaunixsocket/
-
-Lancer un daemon qui va s'occuper de la gestion de tout les process
 Faire toute les commandes
 
 
 
- 
------------------------------------
-[En cours]
+En cour :
 
-
-server Parsing :
-
-Lancer un thread pour chaque client qui se connecte
-Rapport logiques && gestion des variable : http://supervisord.org/configuration.html
+Arrete des thread et des du daemon lorsque le server shutdown
