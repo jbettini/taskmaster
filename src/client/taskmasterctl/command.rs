@@ -6,7 +6,7 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/26 05:06:43 by jbettini          #+#    #+#             */
-/*   Updated: 2024/05/26 05:15:20 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/05/28 13:22:33 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ impl Command {
         } else {
             // handle cmd
             let mut cmd_yaml = serde_yaml::to_string(&self).expect("Program crash when cmd is formated in yaml");
-            println!("{} loaded: yaml Version :\n {:?}",self.cmd ,cmd_yaml);
+            // println!("{} loaded: yaml Version :\n {:?}",self.cmd ,cmd_yaml);
             unix_stream
                 .write(cmd_yaml.as_bytes())
                 .expect("Failed at writing onto the unix stream");

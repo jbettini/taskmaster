@@ -1,6 +1,5 @@
 Client :
 
-communication entre client et daemon
 gerer pour chaque commande le retour du serveur
 
 
