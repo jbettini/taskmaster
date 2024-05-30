@@ -6,7 +6,7 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/28 09:39:49 by jbettini          #+#    #+#             */
-/*   Updated: 2024/05/28 13:28:39 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/05/30 05:32:05 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,11 @@ impl BidirectionalMessage {
             message,
         }
     }
+    
     pub fn answer(&self, message: String) -> Result<(), mpsc::SendError< String >> {
         self.send_stream.send(message)
     }
+    
     pub fn load_bidirectional_message(msg: String, target: Sender<BidirectionalMessage>) -> String{
         let (send_stream, rec_stream): (Sender<String>, Receiver<String>) = mpsc::channel();
         let msg_stream = Self::new(msg, send_stream);

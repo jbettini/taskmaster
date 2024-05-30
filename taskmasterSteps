@@ -1,22 +1,22 @@
 Client :
 
-gerer pour chaque commande le retour du serveur
-
-
 ------------------------
 daemon : 
 
 Rapport logiques et gestion des variable du co : http://supervisord.org/configuration.html
+load la config
+Faire toute les commande 
+Mutex lorsque l'on rentre dans le thread client
 
 ------------------------
 Server:
 
-Faire le retour pour chaque commande : 
-Faire toute les commandes + tout la gestion des retour au client https://emmanuelbosquet.com/2022/whatsaunixsocket/
-
-
-
-
 En cour :
 
-Arrete des thread et des du daemon lorsque le server shutdown
+Communication taskmasterctl -> daemon -> taskmasterctl
+
+
+
+To do 
+Essayer de faire un client qui ne se ferme pas a chaque fois qu'il rentre une commande 
+(client bidirectionel)

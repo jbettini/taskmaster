@@ -6,11 +6,11 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/19 01:19:09 by jbettini          #+#    #+#             */
-/*   Updated: 2024/05/27 08:03:01 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/05/28 20:15:49 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-mod command;
+pub mod command;
 use command::Command;
 use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor};
@@ -32,7 +32,6 @@ fn print_help() {
 }
 
 pub fn taskmasterctl() {
-
     // #set readline
     let mut rl = DefaultEditor::new().expect("Error: Init ReadLine");
     if rl.load_history("history.txt").is_err() {
@@ -40,9 +39,9 @@ pub fn taskmasterctl() {
     }
     // #set socket
     let socket_path = "/Users/xtem/Desktop/Taskmaster/confs/mysocket.sock";
-    let mut us =
-        UnixStream::connect(socket_path).expect("Could not create stream");
     loop {
+        let mut us =
+            UnixStream::connect(socket_path).expect("Could not create stream");
         let read_line = rl.readline("$$> ");
         match read_line {
             Ok(line) => { 
@@ -77,5 +76,4 @@ pub fn taskmasterctl() {
             }
         }
     }
-    // let _ = rl.save_history("history.txt");
 }
