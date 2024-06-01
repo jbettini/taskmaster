@@ -6,7 +6,7 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/19 01:19:09 by jbettini          #+#    #+#             */
-/*   Updated: 2024/05/28 20:15:49 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/05/30 19:28:29 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,9 +39,9 @@ pub fn taskmasterctl() {
     }
     // #set socket
     let socket_path = "/Users/xtem/Desktop/Taskmaster/confs/mysocket.sock";
+    let mut us =
+        UnixStream::connect(socket_path).expect("Could not create stream");
     loop {
-        let mut us =
-            UnixStream::connect(socket_path).expect("Could not create stream");
         let read_line = rl.readline("$$> ");
         match read_line {
             Ok(line) => { 

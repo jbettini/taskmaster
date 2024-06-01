@@ -6,59 +6,77 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/26 05:11:11 by jbettini          #+#    #+#             */
-/*   Updated: 2024/05/30 07:44:48 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/06/01 09:33:27 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 pub mod bidirmsg;
+pub mod logfile;
 
 use bidirmsg::BidirectionalMessage;
 use std::sync::mpsc::Sender;
 use std::os::unix::net::{UnixStream, UnixListener};
 use std::io::{Read, Write};
+use std::fs::File;
 use std::thread;
 use std::io;
+use logfile::SaveLog;
+use std::os::unix::io::AsRawFd;
+
+const LOGFILE:&'static str = "/Users/xtem/Desktop/Taskmaster/confs/logfile";
+const SOCK_PATH: &'static str = "/Users/xtem/Desktop/Taskmaster/confs/mysocket.sock";
 
 fn handle_client_stream(mut unix_stream: UnixStream, daemon: Sender<BidirectionalMessage>) -> Result<bool, io::Error> {
-    let mut buffer = [0; 256];
-    unix_stream.flush().expect("Flush Failed");
-    let _n = match unix_stream.read(& mut buffer) {
-        Ok(_n)  => {
-            if _n == 0 {
-                println!("client shutdown: \n---------\n{:?}\n---------\n", unix_stream);
-            } else {
-                // #send to daemon
-                let string = String::from_utf8_lossy(&buffer).to_string();
-                let ret = BidirectionalMessage::load_bidirectional_message(string.trim_matches('\0').to_string(), daemon.clone());
-                // #answer to client 
-                unix_stream
-                    .write(ret.as_bytes())
-                    .expect("Failed at writing onto the unix stream");
+    // TODO : init only one time buffer for a better memory complexity 
+    let client_id = format!("Client {}",&unix_stream.as_raw_fd());
+    loop {
+        let mut buffer = [0; 4096];
+        unix_stream.flush().expect("Flush Failed");
+        let _n = match unix_stream.read(& mut buffer) {
+            Ok(_n)  => {
+                if _n == 0 {
+                    format!("{} Disconnected", client_id).logs(LOGFILE, &client_id);
+                    break ;
+                } else {
+                    // println!("After : \n {:?}", buffer);
+                    // #send to daemon
+                    let string = String::from_utf8_lossy(&buffer).to_string();
+                    // println!("After in string : \n{:?}", string); 
+                    string.logs(LOGFILE, &client_id);
+                    // TODO : do a mutex here
+                    let ret = BidirectionalMessage::load_bidirectional_message(string.trim_matches('\0').to_string(), daemon.clone());
+                    ret.logs(LOGFILE, "Daemon");
+                    // #answer to client 
+                    unix_stream
+                        .write(ret.as_bytes())
+                        .expect("Failed at writing onto the unix stream");
+                    // buffer.fill();
+                }
             }
-        }
-        Err (_err) => panic!("Error reading"),
-    };
-    println!("client shutdown: \n---------\n{:?}\n---------\n", unix_stream);
+            Err (_err) => panic!("Error reading"),
+        };
+    }
+    
+    println!("client number : {} shutting down", unix_stream.as_raw_fd());
     Ok(true)
 }
 
 pub fn launch_server(talk_to_daemon: Sender<BidirectionalMessage>) {
-    let socket_path = "/Users/xtem/Desktop/Taskmaster/confs/mysocket.sock";
-    if std::fs::metadata(socket_path).is_ok() {
-        println!("A socket is already present. Delete with \"rm -rf {}\" before starting", socket_path);
-        std::process::exit(0);
+    if std::fs::metadata(LOGFILE).is_err() {
+        File::create(LOGFILE).expect("Failed to create the logfile");
     }
-    let unix_listener = UnixListener::bind(socket_path)
+    let unix_listener = UnixListener::bind(SOCK_PATH)
             .expect("Could not create the unix socket");
+    "Server is up and ready to accept connections".logs(LOGFILE, "Daemon");
     loop {
         println!("Waiting for new connection...");
         let (unix_stream, _socket_address) = unix_listener
             .accept()
             .expect("Failed at accepting a connection on the unix listener");
-        println!("New connection accepted");
-        let talk_to_daemon = talk_to_daemon.clone(); 
-        thread::spawn(move || handle_client_stream(unix_stream, talk_to_daemon).expect("Failed to handle stream"));
-        // # archictetural choice if we want to have only one client at the same time 
+        format!("New client connected with the fd {}", &unix_stream.as_raw_fd()).logs(LOGFILE, "Daemon");
+        let talk_to_daemon_clone = talk_to_daemon.clone(); 
+        thread::spawn(move || handle_client_stream(unix_stream, talk_to_daemon_clone).expect("Failed to handle stream"));
+        // # archictetural choice : If we want only 1 client just uncomment and get the code out of the loop
         // .join()
         // .expect("Failed to create a thread for the client connexion");
     }

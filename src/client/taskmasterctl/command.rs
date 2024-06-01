@@ -6,7 +6,7 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/26 05:06:43 by jbettini          #+#    #+#             */
-/*   Updated: 2024/05/30 07:49:39 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/06/01 09:23:07 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@ use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor};
 use std::io::{Read, Write};
 use std::os::unix::net::{UnixListener, UnixStream};
+use std::process;
 
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -59,19 +60,25 @@ impl Command {
     }
 
     pub fn exchange_with_server(mut unix_stream: &UnixStream, buf: String) {
+        println!("Before : {}", buf);
         unix_stream
             .write(buf.as_bytes())
             .expect("Failed at writing onto the unix stream");
+        unix_stream.flush()
+            .expect("Flush Failed");
+        let mut buffer = [0; 4096];
         unix_stream
-            .shutdown(std::net::Shutdown::Write)
-            .expect("Could not shutdown writing on the stream");
-        let mut response = String::new();
-        unix_stream
-            .read_to_string(&mut response)
+            .read(& mut buffer)
             .expect("Failed at reading the unix stream");
-        drop(unix_stream);
-        // edit answer
-        println!("We received this response: {}", response);
+        let response = String::from_utf8_lossy(&buffer).to_string().trim_matches('\0').to_string();
+        match response.as_str() {
+            "Quit" => {
+                println!("{}", response);
+                process::exit(0);
+            },
+            _ => println!("{}", response),
+        }
+        println!("We received this response: {:?}", response);
     }
 
     pub fn handle_cmd(&mut self, mut unix_stream: & UnixStream) {
@@ -82,7 +89,8 @@ impl Command {
             println!("reload command does not take arguments, please retry");
         } else {
             // #handle cmd
-            let cmd_yaml: String = serde_yaml::to_string(&self).expect("Program crash when cmd is formatted in yaml");
+            let cmd_yaml: String = serde_yaml::to_string(&self)
+                .expect("Program crash when cmd is formatted in yaml");
             Command::exchange_with_server(unix_stream, cmd_yaml);
         }
     }
