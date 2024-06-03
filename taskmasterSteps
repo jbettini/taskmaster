@@ -3,20 +3,15 @@ Client :
 ------------------------
 daemon : 
 
-Rapport logiques et gestion des variable du co : http://supervisord.org/configuration.html
+
 load la config
 Faire toute les commande 
-Mutex lorsque l'on rentre dans le thread client
 
 ------------------------
 Server:
 
 En cour :
 
-Communication taskmasterctl -> daemon -> taskmasterctl
 
-
-
-To do 
-Essayer de faire un client qui ne se ferme pas a chaque fois qu'il rentre une commande 
-(client bidirectionel)
+Mutex 
+Rapport logiques et gestion des variable du confs : http://supervisord.org/configuration.html

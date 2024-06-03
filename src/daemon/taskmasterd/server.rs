@@ -6,7 +6,7 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/26 05:11:11 by jbettini          #+#    #+#             */
-/*   Updated: 2024/06/01 09:33:27 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/06/01 09:51:22 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,10 +38,8 @@ fn handle_client_stream(mut unix_stream: UnixStream, daemon: Sender<Bidirectiona
                     format!("{} Disconnected", client_id).logs(LOGFILE, &client_id);
                     break ;
                 } else {
-                    // println!("After : \n {:?}", buffer);
                     // #send to daemon
                     let string = String::from_utf8_lossy(&buffer).to_string();
-                    // println!("After in string : \n{:?}", string); 
                     string.logs(LOGFILE, &client_id);
                     // TODO : do a mutex here
                     let ret = BidirectionalMessage::load_bidirectional_message(string.trim_matches('\0').to_string(), daemon.clone());

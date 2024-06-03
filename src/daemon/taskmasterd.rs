@@ -6,7 +6,7 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/19 01:06:23 by jbettini          #+#    #+#             */
-/*   Updated: 2024/06/01 09:44:52 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/06/01 09:50:35 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,8 @@ use std::sync::mpsc::{self, Sender, Receiver};
 use std::io::stdin;
 
 fn load_configs() {
-    let configs: Config = Config::new("/Users/xtem/Desktop/Taskmaster/confs/taskmaster_confs.yaml");
-    format!("Configuration File : /Users/xtem/Desktop/Taskmaster/confs/taskmaster_confs.yaml loaded").logs(LOGFILE, "Daemon");
+    let configs: Config = Config::new("./confs/taskmaster_confs.yaml");
+    format!("Configuration File : ./confs/taskmaster_confs.yaml loaded").logs(LOGFILE, "Daemon");
 }
 
 fn handle_start(args: Vec<String>, channel :BidirectionalMessage) {
