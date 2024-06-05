@@ -6,13 +6,11 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/26 05:06:43 by jbettini          #+#    #+#             */
-/*   Updated: 2024/05/28 19:46:50 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/06/04 19:06:36 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 use serde::{Serialize, Deserialize};
-use std::io::{Read, Write};
-
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Command {

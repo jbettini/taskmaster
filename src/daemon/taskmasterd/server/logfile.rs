@@ -6,13 +6,12 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 16:35:57 by jbettini          #+#    #+#             */
-/*   Updated: 2024/06/01 09:41:59 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/06/04 20:47:10 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 use std::fs::File;
 use std::io::prelude::*;
-use std::io::Result;
 use std::fs::OpenOptions;
 
 const LOGFILE:&'static str = "/Users/xtem/Desktop/Taskmaster/confs/logfile";
@@ -33,9 +32,9 @@ impl SaveLog for String {
             .open(filename)
             .expect("Couldn't open logfile");
         let prompt = format!("\n{} From {} {}\n", "#".repeat(15),from,"#".repeat(15));
-        file.write(prompt.as_bytes());
-        file.write(self.as_bytes());
-        file.flush();
+        file.write(prompt.as_bytes()).unwrap();
+        file.write(self.as_bytes()).unwrap();
+        file.flush().unwrap();
     }
 }
 
@@ -51,9 +50,9 @@ impl SaveLog for &str {
             .open(filename)
             .expect("Couldn't open logfile");
         let prompt = format!("\n{} From {} {}\n", "#".repeat(15),from,"#".repeat(15));
-        file.write(prompt.as_bytes());
-        file.write(self.as_bytes());
-        file.flush();
+        file.write(prompt.as_bytes()).unwrap();
+        file.write(self.as_bytes()).unwrap();
+        file.flush().unwrap();
     }
 }
 
@@ -69,8 +68,8 @@ impl SaveLog for str {
             .open(filename)
             .expect("Couldn't open logfile");
         let prompt = format!("\n{} From {} {}\n", "#".repeat(15),from,"#".repeat(15));
-        file.write(prompt.as_bytes());
-        file.write(self.as_bytes());
-        file.flush();
+        file.write(prompt.as_bytes()).unwrap();
+        file.write(self.as_bytes()).unwrap();
+        file.flush().unwrap();
     }
 }

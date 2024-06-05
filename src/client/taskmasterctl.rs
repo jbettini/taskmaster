@@ -6,16 +6,15 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/19 01:19:09 by jbettini          #+#    #+#             */
-/*   Updated: 2024/05/30 19:28:29 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/06/04 19:05:38 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 pub mod command;
 use command::Command;
 use rustyline::error::ReadlineError;
-use rustyline::{DefaultEditor};
-use std::io::{Read, Write};
-use std::os::unix::net::{UnixListener, UnixStream};
+use rustyline::DefaultEditor;
+use std::os::unix::net::UnixStream;
 
 fn print_help() {
     println!(
@@ -39,7 +38,7 @@ pub fn taskmasterctl() {
     }
     // #set socket
     let socket_path = "/Users/xtem/Desktop/Taskmaster/confs/mysocket.sock";
-    let mut us =
+    let us =
         UnixStream::connect(socket_path).expect("Could not create stream");
     loop {
         let read_line = rl.readline("$$> ");

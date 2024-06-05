@@ -6,66 +6,62 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/19 01:06:23 by jbettini          #+#    #+#             */
-/*   Updated: 2024/06/01 09:50:35 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/06/06 01:35:20 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-pub mod parsing;
 pub mod server;
 pub mod command;
+pub mod initconfig;
 // pub mod taskmasterctl;
 
 const SOCK_PATH:&'static str = "/Users/xtem/Desktop/Taskmaster/confs/mysocket.sock";
 const LOGFILE:&'static str = "/Users/xtem/Desktop/Taskmaster/confs/logfile";
 
 use server::logfile::SaveLog;
-use parsing::Config;
 use command::Command;
-use serde::{Deserialize, Serialize};
 use server::bidirmsg::BidirectionalMessage;
 use fork::{daemon, fork, Fork};
-use std::process;
-use std::thread;
+use std::{thread, process, time};
 use std::sync::mpsc::{self, Sender, Receiver};
-use std::io::stdin;
 
-fn load_configs() {
-    let configs: Config = Config::new("./confs/taskmaster_confs.yaml");
-    format!("Configuration File : ./confs/taskmaster_confs.yaml loaded").logs(LOGFILE, "Daemon");
-}
-
-fn handle_start(args: Vec<String>, channel :BidirectionalMessage) {
-    channel.answer(String::from("Hello from start fun"));
-}
 
 fn handle_stop(args: Vec<String>, channel :BidirectionalMessage) {
     if args.is_empty() {
         let exit_msg = "Daemon shutting down...";
-        channel.answer(String::from("Quit"));
+        channel.answer(String::from("Quit")).expect("Error when channel.answer is used");
         exit_msg.logs(LOGFILE, "Daemon");
         println!("{}", exit_msg);
-        std::fs::remove_file(SOCK_PATH);
+        if std::fs::metadata(SOCK_PATH).is_ok() {
+            std::fs::remove_file(SOCK_PATH).unwrap();
+        }
+        thread::sleep(time::Duration::from_secs(2));
+        println!("Daemon Exit");
         process::exit(0);
     } else {
         println!("Hello from stop fun because stop args is not empty");
     }
 }
 
+fn handle_start(args: Vec<String>, channel :BidirectionalMessage) {
+    channel.answer(String::from("Hello from start fun")).unwrap();
+}
+
 fn handle_restart(args: Vec<String>, channel :BidirectionalMessage) {
-    channel.answer(String::from("Hello from restart fun"));
+    channel.answer(String::from("Hello from restart fun")).unwrap();
 }
 
 fn handle_status(args: Vec<String>, channel :BidirectionalMessage) {
-    channel.answer(String::from("Hello from status fun"));
+    channel.answer(String::from("Hello from status fun")).unwrap();
 }
 
 fn handle_reload(args: Vec<String>, channel :BidirectionalMessage) {
-    channel.answer(String::from("Hello from reload fun"));
+    channel.answer(String::from("Hello from reload fun")).unwrap();
 }
 
 fn main_process() {
     // #set all the configs before listen client command and connexion
-    // load_configs();
+    initconfig::load_configs();
     "Daemon is Up".logs(LOGFILE, "Daemon");
     if std::fs::metadata(SOCK_PATH).is_ok() {
         println!("A socket is already present. Delete with \"rm -rf {}\" before starting", SOCK_PATH);

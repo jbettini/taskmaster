@@ -6,15 +6,13 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/26 05:06:43 by jbettini          #+#    #+#             */
-/*   Updated: 2024/06/01 09:23:07 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/06/04 19:04:55 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 use serde::{Serialize, Deserialize};
-use rustyline::error::ReadlineError;
-use rustyline::{DefaultEditor};
 use std::io::{Read, Write};
-use std::os::unix::net::{UnixListener, UnixStream};
+use std::os::unix::net::UnixStream;
 use std::process;
 
 
@@ -81,7 +79,7 @@ impl Command {
         println!("We received this response: {:?}", response);
     }
 
-    pub fn handle_cmd(&mut self, mut unix_stream: & UnixStream) {
+    pub fn handle_cmd(&mut self, unix_stream: &UnixStream) {
         // # handle Args
         if ["start", "restart"].contains(&self.cmd.as_str()) && self.args.len() <= 0 {
             println!("{} command need to take at least one argument, please retry", self.cmd);

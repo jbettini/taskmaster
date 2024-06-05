@@ -13,5 +13,14 @@ Server:
 En cour :
 
 
-Mutex 
-Rapport logiques et gestion des variable du confs : http://supervisord.org/configuration.html
+Rapport logiques des variables du confs : http://supervisord.org/configuration.html
+
+
+Patch : 
+(     Maybe is fixed  //need test
+Bug parfois le client ne se deco pas apres avoir envoyer stop au daemon 
+)
+
+
+
+quand un client stop le daemon cela ne quitte pas les autres client ouvert

@@ -177,7 +177,10 @@ STDOUT/STDERR :
 • Options to discard the program’s stdout/stderr or to redirect them to files
 -----
 ***Custom rules***
-set to None or a path to a files cannot use the same file
+set to None or a path to a files, err and out cannot use the same file
+
+Default: no values
+Required: No.
 
 ##################################################################
 
@@ -197,3 +200,34 @@ See Subprocess Environment.
 
 Default: no values
 Required: No.
+
+
+
+
+
+Champs Option -> string: 
+Ne necessitant pas de valeur par default :
+
+    stdout
+    stderr
+    env
+
+Le contraire :
+
+    umask           3 chiffre entre 0 et 7
+    autorestart     true/false/unexpected
+    stopsignal      Un des signaux existant
+--------
+Champs Number :
+
+    numprocs: Option<usize>,    un chiffre entre 1 et inf~
+    startretries: Option<u32>,  //
+    stoptime: Option<u32>,      //
+    starttime: Option<u32>,     entre 0 et inf
+
+--------
+
+Champs Speciaux :
+
+    pub exitcodes: Option<Vec<i32>>,
+    pub autostart: Option<bool>,        

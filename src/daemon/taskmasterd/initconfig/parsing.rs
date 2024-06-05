@@ -6,7 +6,7 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/17 03:29:48 by jbettini          #+#    #+#             */
-/*   Updated: 2024/06/01 11:05:28 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/06/06 01:24:10 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,33 +18,72 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Config {
-    programs: HashMap<String, ProgramConfig>,
-}
-
-impl Config {
-    pub fn new(filename: &str) -> Self {
-        let yaml = std::fs::read_to_string(filename).expect("Failed to read YAML file");
-        let config: Config = serde_yaml::from_str(&yaml).expect("Failed to parse YAML : \n");
-        config
-    }          
-}
-
 #[derive(Serialize, Deserialize, Debug)]
+
 pub struct ProgramConfig {
     pub cmd: String, 
-    pub numprocs: usize,
-    pub umask: Option<String>,
-    pub workingdir: Option<String>,
+    #[serde(default = "default_numprocs")]
+    pub numprocs: u32,
+    
+    #[serde(default = "default_umask")]
+    pub umask: String,
+    
+    // #[serde(default = "default_workingdir")]
+    pub workingdir: String,
+    
+    #[serde(default = "default_autostart")]
     pub autostart: bool,
+    
+    #[serde(default = "default_autorestart")]
     pub autorestart: String,
+    
+    #[serde(default = "default_exitcodes")]
     pub exitcodes: Vec<i32>,
+
+    #[serde(default = "default_startretries")]
     pub startretries: u32,
+
+    #[serde(default = "default_starttime")]
     pub starttime: u32,
+    
+    #[serde(default = "default_stopsignal")]
     pub stopsignal: String,
+    
+    #[serde(default = "default_stoptime")]
     pub stoptime: u32,
+    
     pub stdout: Option<String>,
     pub stderr: Option<String>,
     pub env: Option<HashMap<String, String>>,
+}
+
+fn default_numprocs() -> u32 {
+    1
+}
+fn default_umask() -> String {
+    String::from("022")
+}
+// fn default_workingdir() -> String {
+    
+// }
+fn default_autostart() -> bool {
+    true
+}
+fn default_autorestart() -> String {
+    String::from("unexpected")
+}
+fn default_exitcodes() -> Vec<i32> {
+    vec![0]
+}
+fn default_startretries() -> u32 {
+    3
+}
+fn default_starttime() -> u32 {
+    1
+}
+fn default_stopsignal() -> String {
+    String::from("TERM")
+}
+fn default_stoptime() -> u32 {
+    10
 }
