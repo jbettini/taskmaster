@@ -6,7 +6,7 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/19 01:06:23 by jbettini          #+#    #+#             */
-/*   Updated: 2024/06/06 01:35:20 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/06/06 15:35:17 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,9 +59,16 @@ fn handle_reload(args: Vec<String>, channel :BidirectionalMessage) {
     channel.answer(String::from("Hello from reload fun")).unwrap();
 }
 
+fn load_config() {
+    let mut config = initconfig::get_config();
+    for prog in config.programs.values_mut() {
+        if prog.autostart {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+        }
+    }
+    // format!("Configuration File : ./confs/taskmaster_confs.yaml loaded").logs(LOGFILE, "Daemon");
+}
+
 fn main_process() {
-    // #set all the configs before listen client command and connexion
-    initconfig::load_configs();
     "Daemon is Up".logs(LOGFILE, "Daemon");
     if std::fs::metadata(SOCK_PATH).is_ok() {
         println!("A socket is already present. Delete with \"rm -rf {}\" before starting", SOCK_PATH);
@@ -69,6 +76,9 @@ fn main_process() {
     }
     let (talk_to_daemon, rec_in_daemon): (Sender<BidirectionalMessage>, Receiver<BidirectionalMessage>) = mpsc::channel();
     thread::spawn(move || server::launch_server(talk_to_daemon.clone()));
+    // #set all the configs before handling client command 
+    //TODO: load the config 
+    load_config();
     for receive in rec_in_daemon{
         // println!("{:?}", receive.message);
         let command: Command = serde_yaml::from_str(&(receive.message.to_string())).expect("Error when parsing command");

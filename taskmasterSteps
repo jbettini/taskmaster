@@ -6,6 +6,7 @@ daemon :
 
 load la config
 Faire toute les commande 
+erreur si un des variable on a un rapport illogique entre elle
 
 ------------------------
 Server:
@@ -13,14 +14,13 @@ Server:
 En cour :
 
 
-Rapport logiques des variables du confs : http://supervisord.org/configuration.html
+
 
 
 Patch : 
-(     Maybe is fixed  //need test
-Bug parfois le client ne se deco pas apres avoir envoyer stop au daemon 
-)
-
-
 
 quand un client stop le daemon cela ne quitte pas les autres client ouvert
+
+(     Maybe is fixed  //need test
+    Bug parfois le client ne se deco pas apres avoir envoyer stop au daemon 
+)

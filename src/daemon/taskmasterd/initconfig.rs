@@ -6,7 +6,7 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 01:03:01 by jbettini          #+#    #+#             */
-/*   Updated: 2024/06/06 01:30:52 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/06/06 02:40:19 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,8 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Config {
-    programs: HashMap<String, ProgramConfig>,
+pub struct Config {
+    pub programs: HashMap<String, ProgramConfig>,
 }
 
 fn check_config(config: & mut Config) {
@@ -39,19 +39,9 @@ fn check_config(config: & mut Config) {
     }
 }
 
-fn deserialize_config(filename: &str) -> Config {
-    let yaml = std::fs::read_to_string(filename).expect("Failed to read YAML file");
-    serde_yaml::from_str(&yaml).expect("Failed to parse YAML : \n")
-}
-
-
-pub fn load_configs() {
-    let mut config = deserialize_config("./confs/taskmaster_confs.yaml");
+pub fn get_config() -> Config {
+    let yaml = std::fs::read_to_string("./confs/taskmaster_confs.yaml").expect("Failed to read YAML file");
+    let mut config = serde_yaml::from_str(&yaml).expect("Failed to parse YAML : \n");
     check_config(& mut config);
-    println!("{:#?}", config);
-    
-    // for prog in config.programs.values_mut() {
-        
-    // }
-    // format!("Configuration File : ./confs/taskmaster_confs.yaml loaded").logs(LOGFILE, "Daemon");
+    config
 }

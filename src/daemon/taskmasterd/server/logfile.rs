@@ -6,13 +6,12 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 16:35:57 by jbettini          #+#    #+#             */
-/*   Updated: 2024/06/04 20:47:10 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/06/06 02:34:41 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-use std::fs::File;
+use std::fs::{File, OpenOptions};
 use std::io::prelude::*;
-use std::fs::OpenOptions;
 
 const LOGFILE:&'static str = "/Users/xtem/Desktop/Taskmaster/confs/logfile";
 

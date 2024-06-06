@@ -6,7 +6,7 @@
 /*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/26 05:11:11 by jbettini          #+#    #+#             */
-/*   Updated: 2024/06/04 23:12:22 by jbettini         ###   ########.fr       */
+/*   Updated: 2024/06/06 02:44:33 by jbettini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,7 @@ use std::sync::mpsc::Sender;
 use std::os::unix::net::{UnixStream, UnixListener};
 use std::io::{Read, Write};
 use std::fs::File;
-use std::thread;
-use std::io;
+use std::{thread, io};
 use logfile::SaveLog;
 use std::os::unix::io::AsRawFd;
 use std::sync::Mutex;
@@ -82,8 +81,7 @@ pub fn launch_server(talk_to_daemon: Sender<BidirectionalMessage>) {
         // thread::spawn(move || handle_client_stream(unix_stream, talk_to_daemon_clone).expect("Failed to handle stream"));
         let mutex_talk_to_daemon = Mutex::new(talk_to_daemon.clone());
         thread::spawn(move || handle_client_stream(unix_stream, mutex_talk_to_daemon).expect("Failed to handle stream"));
-
-        // # archictetural choice : If we want only 1 client just uncomment and get the code out of the loop
+        // // # archictetural choice : If we want only 1 client just uncomment and get the code out of the loop
         // .join()
         // .expect("Failed to create a thread for the client connexion");
     }
