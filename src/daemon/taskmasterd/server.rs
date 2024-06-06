@@ -24,8 +24,8 @@ use std::os::unix::io::AsRawFd;
 use std::sync::Mutex;
 use std::time::Duration;
 
-const LOGFILE:&'static str = "/Users/xtem/Desktop/Taskmaster/confs/logfile";
-const SOCK_PATH: &'static str = "/Users/xtem/Desktop/Taskmaster/confs/mysocket.sock";
+const SOCK_PATH: &'static str = r"C:\Users\Ramzi\Desktop\School projects\Taskmaster\confs\mysocket.sock";
+const LOGFILE: &'static str = r"C:\Users\Ramzi\Desktop\School projects\Taskmaster\confs\logfile";
 
 // fn handle_client_stream(mut unix_stream: UnixStream, daemon: Sender<BidirectionalMessage>) -> Result<bool, io::Error> {
 fn handle_client_stream(mut unix_stream: UnixStream, daemon: Mutex<Sender<BidirectionalMessage>>) -> Result<bool, io::Error> {

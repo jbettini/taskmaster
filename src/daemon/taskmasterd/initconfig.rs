@@ -40,7 +40,8 @@ fn check_config(config: & mut Config) {
 }
 
 pub fn get_config() -> Config {
-    let yaml = std::fs::read_to_string("./confs/taskmaster_confs.yaml").expect("Failed to read YAML file");
+    let yaml_path = r"C:\Users\Ramzi\Desktop\School projects\Taskmaster\confs\taskmaster_confs.yaml";
+    let yaml = std::fs::read_to_string(yaml_path).expect("Failed to read YAML file");
     let mut config = serde_yaml::from_str(&yaml).expect("Failed to parse YAML : \n");
     check_config(& mut config);
     config
