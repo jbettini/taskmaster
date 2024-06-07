@@ -18,13 +18,45 @@ pub mod checker;
 
 use checker::{Schecker, Uchecker};
 use parsing::ProgramConfig;
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Config {
     pub programs: HashMap<String, ProgramConfig>,
 }
+
+
+pub struct Procs {
+    pub config: Config,
+    pub status: Vec<Arc<Status>>,
+}
+
+impl Procs {
+    pub fn new() -> Self {
+        Procs {
+            config: get_config(),
+            status: Vec::new(),
+        }
+    }
+}
+
+pub struct Status {
+    pub name: String,
+    pub state: String,
+    pub date: String,
+}
+
+impl Status {
+    pub fn new () -> Self {
+        Status {
+            name: String::new(),
+            state: String::new(),
+            date: String::new(),
+        }
+    }
+}
+
 
 fn check_config(config: & mut Config) {
     for prog in config.programs.values_mut() {
@@ -40,7 +72,7 @@ fn check_config(config: & mut Config) {
 }
 
 pub fn get_config() -> Config {
-    let yaml_path = r"C:\Users\Ramzi\Desktop\School projects\Taskmaster\confs\taskmaster_confs.yaml";
+    let yaml_path =  "/Users/ramzi/Desktop/Taskmaster/confs/taskmaster_confs.yaml";
     let yaml = std::fs::read_to_string(yaml_path).expect("Failed to read YAML file");
     let mut config = serde_yaml::from_str(&yaml).expect("Failed to parse YAML : \n");
     check_config(& mut config);

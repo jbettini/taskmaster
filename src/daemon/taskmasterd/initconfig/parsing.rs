@@ -28,7 +28,7 @@ pub struct ProgramConfig {
     #[serde(default = "default_umask")]
     pub umask: String,
     
-    // #[serde(default = "default_workingdir")]
+    #[serde(default = "default_workingdir")]
     pub workingdir: String,
     
     #[serde(default = "default_autostart")]
@@ -63,9 +63,9 @@ fn default_numprocs() -> u32 {
 fn default_umask() -> String {
     String::from("022")
 }
-// fn default_workingdir() -> String {
-    
-// }
+fn default_workingdir() -> String {
+    String::from("/tmp")
+}
 fn default_autostart() -> bool {
     true
 }

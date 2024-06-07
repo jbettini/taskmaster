@@ -37,7 +37,7 @@ pub fn taskmasterctl() {
         println!("No previous history.");
     }
     // #set socket
-    let socket_path = "/Users/xtem/Desktop/Taskmaster/confs/mysocket.sock";
+    let socket_path = "/Users/ramzi/Desktop/Taskmaster/confs/mysocket.sock";
     let us =
         UnixStream::connect(socket_path).expect("Could not create stream");
     loop {

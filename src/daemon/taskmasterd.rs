@@ -15,9 +15,10 @@ pub mod command;
 pub mod initconfig;
 // pub mod taskmasterctl;
 
-const SOCK_PATH: &'static str = r"C:\Users\Ramzi\Desktop\School projects\Taskmaster\confs\mysocket.sock";
-const LOGFILE: &'static str = r"C:\Users\Ramzi\Desktop\School projects\Taskmaster\confs\logfile";
+const SOCK_PATH: &'static str = "/Users/ramzi/Desktop/Taskmaster/confs/mysocket.sock";
+const LOGFILE: &'static str = "/Users/ramzi/Desktop/Taskmaster/confs/logfile";
 
+use initconfig::Procs;
 use server::logfile::SaveLog;
 use command::Command;
 use server::bidirmsg::BidirectionalMessage;
@@ -60,26 +61,31 @@ fn handle_reload(args: Vec<String>, channel :BidirectionalMessage) {
     channel.answer(String::from("Hello from reload fun")).unwrap();
 }
 
-fn load_config() -> initconfig::Config {
-    let config = initconfig::get_config();
-    config
+fn load_config() {
+    let mut procs = Procs::new();
+
+    for (name, program) in procs.config.programs {
+        if program.autostart {
+            start_process(program);
+        }
+    }
 }
 
-fn supervise_process(program_config: initconfig::ProgramConfig) {
+fn start_process(program_config: Procs) {
     thread::spawn(move || {
-        // Logic to start and supervise the process
         loop {
-            // Start the process
+            // start the process
+            println!("Attempting to start process: {}", program_config.cmd);
             let mut child = process::Command::new(program_config.cmd.clone())
                 .current_dir(program_config.workingdir.clone())
                 .spawn()
                 .expect("Failed to start process");
 
-            // Wait for the process to finish
+            // wait for the process to finish
             let status = child.wait().expect("Failed to wait on child");
 
             if !program_config.exitcodes.contains(&status.code().unwrap_or(-1)) {
-                // Process ended unexpectedly, restart if necessary
+                // process ended unexpectedly, restart if necessary
                 if program_config.autorestart == "always" || program_config.autorestart == "unexpected" {
                     continue;
                 }
@@ -97,16 +103,8 @@ fn main_process() {
     }
     let (talk_to_daemon, rec_in_daemon): (Sender<BidirectionalMessage>, Receiver<BidirectionalMessage>) = mpsc::channel();
     thread::spawn(move || server::launch_server(talk_to_daemon.clone()));
-
-    let config = load_config();
-
-    // Launch processes based on the config
-    for (_, program_config) in config.programs {
-        if program_config.autostart {
-            supervise_process(program_config);
-        }
-    }
-
+    let mut procs: Procs = Procs::new();
+    load_config();
     for receive in rec_in_daemon {
         let command: Command = serde_yaml::from_str(&(receive.message.to_string())).expect("Error when parsing command");
         match command.cmd.as_str() {
