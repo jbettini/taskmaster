@@ -19,7 +19,7 @@ pub struct Command {
 }
 
 impl Command {
-    fn new () -> Self {
+    pub fn new () -> Self {
         Command {
             cmd: String::new(),
             args: Vec::new(),

@@ -18,7 +18,7 @@ pub mod checker;
 
 use checker::{Schecker, Uchecker};
 use parsing::ProgramConfig;
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, sync::{Arc, Mutex}, time::SystemTime};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -29,7 +29,7 @@ pub struct Config {
 
 pub struct Procs {
     pub config: Config,
-    pub status: Vec<Arc<Status>>,
+    pub status: Vec<Arc<Mutex<Status>>>,
 }
 
 impl Procs {
@@ -44,15 +44,15 @@ impl Procs {
 pub struct Status {
     pub name: String,
     pub state: String,
-    pub date: String,
+    pub start_time: Option<SystemTime>,
 }
 
 impl Status {
-    pub fn new () -> Self {
+    pub fn new (name: String, state: String) -> Self {
         Status {
-            name: String::new(),
-            state: String::new(),
-            date: String::new(),
+            name,
+            state,
+            start_time: None,
         }
     }
 }
@@ -72,7 +72,7 @@ fn check_config(config: & mut Config) {
 }
 
 pub fn get_config() -> Config {
-    let yaml_path =  "/Users/ramzi/Desktop/Taskmaster/confs/taskmaster_confs.yaml";
+    let yaml_path =  "/home/ramzi/Desktop/Taskmaster/confs/taskmaster_confs.yaml";
     let yaml = std::fs::read_to_string(yaml_path).expect("Failed to read YAML file");
     let mut config = serde_yaml::from_str(&yaml).expect("Failed to parse YAML : \n");
     check_config(& mut config);

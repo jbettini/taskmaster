@@ -4,20 +4,57 @@
 #     workingdir: "/tmp   "
 
 programs:
-  nginx:
-    cmd: "/usr/local/bin/nginx"
+  # test:
+  #   cmd: "./test"
+  #   numprocs: 1
+  #   umask: 033
+  #   workingdir: /home/ramzi/Desktop/Taskmaster/
+  #   autostart: true
+  #   autorestart: true
+  #   exitcodes: [0, 2]
+  #   startretries: 3
+  #   starttime: 5
+  #   stopsignal: TERM
+  #   stoptime: 10
+  #   stdout: /tmp/test.stdout
+  #   stderr: /tmp/test.stderr
+  #   env:
+  #     STARTED_BY: taskmaster
+  #     ANSWER: 42
+  echo_program:
+    cmd: "echo"
+    args: ["Hello, World!"]
     numprocs: 1
-    umask: 022
-    workingdir: /tmp
+    umask: 033
+    workingdir: "/tmp"
     autostart: true
-    autorestart: unexpected
-    exitcodes: [0, 2]
+    autorestart: true
+    exitcodes: [0]
     startretries: 3
-    starttime: 5
-    stopsignal: TERM
-    stoptime: 10
-    stdout: /tmp/nginx.stdout
-    stderr: /tmp/nginx.stderr
+    starttime: 1
+    stopsignal: "TERM"
+    stoptime: 5
+    stdout: "/tmp/echo_program.stdout"
+    stderr: "/tmp/echo_program.stderr"
+    env:
+      STARTED_BY: taskmaster
+      ANSWER: 42
+
+  http_server:
+    cmd: "python3"
+    args: ["-m", "http.server", "8000"]
+    numprocs: 1
+    umask: 044
+    workingdir: "/tmp"
+    autostart: false
+    autorestart: true
+    exitcodes: [0]
+    startretries: 3
+    starttime: 1
+    stopsignal: "TERM"
+    stoptime: 5
+    stdout: "/tmp/http_server.stdout"
+    stderr: "/tmp/http_server.stderr"
     env:
       STARTED_BY: taskmaster
       ANSWER: 42

@@ -13,7 +13,7 @@
 use std::fs::{File, OpenOptions};
 use std::io::prelude::*;
 
-const LOGFILE:&'static str = "/Users/ramzi/Desktop/Taskmaster/confs/logfile";
+const LOGFILE:&'static str = "/home/ramzi/Desktop/Taskmaster/confs/logfile";
 
 pub trait SaveLog {
     fn logs(&self, filename: &str, from: &str);
