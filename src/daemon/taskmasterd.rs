@@ -1,19 +1,14 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   taskmasterd.rs                                     :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jbettini <jbettini@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/19 01:06:23 by jbettini          #+#    #+#             */
-/*   Updated: 2024/06/06 15:35:17 by jbettini         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+use std::collections::HashMap;
+use std::fs::File;
+use std::process::Stdio;
+use std::time::{Duration, SystemTime};
+use std::{thread, process, time};
+use std::sync::mpsc::{self, Sender, Receiver};
+use std::sync::{Arc, Mutex};
 
 pub mod server;
 pub mod command;
 pub mod initconfig;
-// pub mod taskmasterctl;
 
 const SOCK_PATH: &'static str = "/home/ramzi/Desktop/Taskmaster/confs/mysocket.sock";
 const LOGFILE: &'static str = "/home/ramzi/Desktop/Taskmaster/confs/logfile";
@@ -24,15 +19,6 @@ use server::logfile::SaveLog;
 use command::Command;
 use server::bidirmsg::BidirectionalMessage;
 use fork::{daemon, fork, Fork};
-use std::collections::HashMap;
-use std::fs::File;
-use std::process::Stdio;
-use std::time::{Duration, SystemTime};
-use std::{thread, process, time};
-use std::sync::mpsc::{self, Sender, Receiver};
-use std::sync::{Arc, Mutex};
-
-
 
 fn handle_stop(args: Vec<String>, channel: BidirectionalMessage, procs: &mut Procs) {
     if args.is_empty() {
@@ -46,14 +32,16 @@ fn handle_stop(args: Vec<String>, channel: BidirectionalMessage, procs: &mut Pro
     for arg in args {
         let status = {
             let processes_guard = processes.lock().unwrap();
-
             processes_guard.get(&arg).cloned()
         };
 
         if let Some(status) = status {
             let child_opt = {
-                let status_guard = status.lock().unwrap();
-                status_guard.child.clone()
+                let mut status_guard = status.lock().unwrap();
+                let child_opt = status_guard.child.take();
+                status_guard.state = String::from("stopped");
+                status_guard.start_time = Some(SystemTime::now());
+                child_opt
             };
 
             if let Some(child_arc) = child_opt {
@@ -68,9 +56,8 @@ fn handle_stop(args: Vec<String>, channel: BidirectionalMessage, procs: &mut Pro
                                 Ok(_) => {
                                     let stopped = child.wait().is_ok();
                                     if stopped {
-                                        let mut status_guard = status.lock().unwrap();
-                                        status_guard.state = String::from("stopped");
-                                        status_guard.child = None;
+                                        let mut processes_guard = processes.lock().unwrap();
+                                        processes_guard.remove(&arg);
                                         response.push_str(&format!("Program {} stopped\n", arg));
                                     } else {
                                         response.push_str(&format!("Failed to stop program {}: still running\n", arg));
@@ -92,7 +79,7 @@ fn handle_stop(args: Vec<String>, channel: BidirectionalMessage, procs: &mut Pro
                     }
                 }
 
-                if !locked {
+                if (!locked) {
                     response.push_str(&format!("Failed to acquire lock to stop program {}\n", arg));
                 }
             } else {
@@ -138,7 +125,7 @@ fn shutdown_daemon(channel: BidirectionalMessage, procs: &mut Procs) {
                     },
                 }
             }
-            if !locked {
+            if (!locked) {
                 eprintln!("Failed to acquire lock to stop program {}", name);
             }
         }
@@ -152,15 +139,21 @@ fn shutdown_daemon(channel: BidirectionalMessage, procs: &mut Procs) {
     process::exit(0);
 }
 
-
 fn handle_start(args: Vec<String>, channel: BidirectionalMessage, procs: &mut Procs) {
     let mut response = String::new();
     for arg in args {
         if let Some(program) = procs.config.programs.get(&arg) {
-            let status = Arc::new(Mutex::new(Status::new(arg.clone(), String::from("starting"))));
-            procs.status.push(status.clone());
-            start_process(arg.clone(), program.clone(), status.clone(), procs.processes.clone());
-            response.push_str(&format!("Program {} started\n", arg));
+            let processes_guard = procs.processes.lock().unwrap();
+            if processes_guard.contains_key(&arg) {
+                response.push_str(&format!("Program {} is already running\n", arg));
+            } else {
+                drop(processes_guard);
+                let status = Arc::new(Mutex::new(Status::new(arg.clone(), String::from("starting"))));
+                procs.status.retain(|s| s.lock().unwrap().name != arg);  // Remove any existing status with the same name
+                procs.status.push(status.clone());
+                start_process(arg.clone(), program.clone(), status.clone(), procs.processes.clone());
+                response.push_str(&format!("Program {} started\n", arg));
+            }
         } else {
             response.push_str(&format!("Program {} not found in configuration\n", arg));
         }
@@ -168,17 +161,31 @@ fn handle_start(args: Vec<String>, channel: BidirectionalMessage, procs: &mut Pr
     channel.answer(response).unwrap();
 }
 
-
-
 fn handle_restart(args: Vec<String>, channel: BidirectionalMessage, procs: &mut Procs) {
-    handle_stop(args.clone(), channel.clone(), procs);
-    handle_start(args.clone(), channel.clone(), procs);
+    for arg in &args {
+        handle_stop(vec![arg.clone()], channel.clone(), procs);
+    }
+
+    // Attendre que tous les processus soient effectivement arrêtés
+    thread::sleep(Duration::from_secs(2));
+
+    for arg in args {
+        handle_start(vec![arg], channel.clone(), procs);
+    }
 }
+
 
 fn handle_status(args: Vec<String>, channel: BidirectionalMessage, procs: &Procs) {
     let mut status_message = String::new();
+    let mut seen = std::collections::HashSet::new();  // To track seen programs
+
     for status in &procs.status {
         let status_guard = status.lock().unwrap();
+        if seen.contains(&status_guard.name) {
+            continue;  // Skip duplicates
+        }
+        seen.insert(status_guard.name.clone());
+
         let start_time_str = status_guard.start_time
             .map_or("N/A".to_string(), |t| {
                 match t.elapsed() {
@@ -194,7 +201,6 @@ fn handle_status(args: Vec<String>, channel: BidirectionalMessage, procs: &Procs
     }
     channel.answer(status_message).unwrap();
 }
-
 
 fn handle_reload(args: Vec<String>, channel: BidirectionalMessage) {
     channel.answer(String::from("Hello from reload fun")).unwrap();
@@ -241,9 +247,6 @@ fn start_process(
         }
     });
 }
-
-
-
 
 fn load_config(procs: &mut Procs) {
     procs.config = get_config();
