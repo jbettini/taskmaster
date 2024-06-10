@@ -18,7 +18,7 @@ pub mod checker;
 
 use checker::{Schecker, Uchecker};
 use parsing::ProgramConfig;
-use std::{collections::HashMap, sync::{Arc, Mutex}, time::SystemTime};
+use std::{collections::HashMap, process, sync::{Arc, Mutex}, time::SystemTime};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -26,10 +26,11 @@ pub struct Config {
     pub programs: HashMap<String, ProgramConfig>,
 }
 
-
 pub struct Procs {
     pub config: Config,
     pub status: Vec<Arc<Mutex<Status>>>,
+    pub pids: HashMap<String, u32>,
+    pub processes: Arc<Mutex<HashMap<String, Arc<Mutex<Status>>>>>, // Ajouté
 }
 
 impl Procs {
@@ -37,14 +38,17 @@ impl Procs {
         Procs {
             config: get_config(),
             status: Vec::new(),
+            pids: HashMap::new(),
+            processes: Arc::new(Mutex::new(HashMap::new())), // Initialisation
         }
     }
 }
-
+#[derive(Debug)]
 pub struct Status {
     pub name: String,
     pub state: String,
     pub start_time: Option<SystemTime>,
+    pub child: Option<Arc<Mutex<process::Child>>>,
 }
 
 impl Status {
@@ -53,6 +57,7 @@ impl Status {
             name,
             state,
             start_time: None,
+            child: None,
         }
     }
 }

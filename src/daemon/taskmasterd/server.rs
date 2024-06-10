@@ -53,7 +53,7 @@ fn handle_client_stream(mut unix_stream: UnixStream, daemon: Mutex<Sender<Bidire
                         .write(ret.as_bytes())
                         .expect("Failed at writing onto the unix stream");
                     // buffer.fill();
-                    thread::sleep(Duration::from_secs(10));
+                    //thread::sleep(Duration::from_secs(5));
                 }
             }
             Err (_err) => panic!("Error reading"),

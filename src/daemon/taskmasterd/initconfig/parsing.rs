@@ -21,7 +21,10 @@ use std::collections::HashMap;
 #[derive(Serialize, Deserialize, Debug, Clone)]
 
 pub struct ProgramConfig {
-    pub cmd: String, 
+    pub cmd: String,
+
+    pub args: Vec<String>,
+
     #[serde(default = "default_numprocs")]
     pub numprocs: u32,
     
@@ -52,8 +55,8 @@ pub struct ProgramConfig {
     #[serde(default = "default_stoptime")]
     pub stoptime: u32,
     
-    pub stdout: Option<String>,
-    pub stderr: Option<String>,
+    pub stdout: String,
+    pub stderr: String,
     pub env: Option<HashMap<String, String>>,
 }
 

@@ -27,8 +27,8 @@ programs:
     numprocs: 1
     umask: 033
     workingdir: "/tmp"
-    autostart: true
-    autorestart: true
+    autostart: false
+    autorestart: false
     exitcodes: [0]
     startretries: 3
     starttime: 1
@@ -40,21 +40,21 @@ programs:
       STARTED_BY: taskmaster
       ANSWER: 42
 
-  http_server:
+  simple_script:
     cmd: "python3"
-    args: ["-m", "http.server", "8000"]
+    args: ["test.py"]
     numprocs: 1
     umask: 044
-    workingdir: "/tmp"
+    workingdir: "."
     autostart: false
-    autorestart: true
+    autorestart: false
     exitcodes: [0]
     startretries: 3
     starttime: 1
     stopsignal: "TERM"
     stoptime: 5
-    stdout: "/tmp/http_server.stdout"
-    stderr: "/tmp/http_server.stderr"
+    stdout: "/tmp/simple_script.stdout"
+    stderr: "tmp/simple_script.stderr"
     env:
       STARTED_BY: taskmaster
       ANSWER: 42
