@@ -53,7 +53,7 @@ programs:
     starttime: 1
     stopsignal: "TERM"
     stoptime: 5
-    stdout: "/home/ramzi/Desktop/Taskmaster/simple_script.stdout"
+    stdout: "/home/ramzi/Desktop/Taskmaster/simple_script1.stdout"
     stderr: "tmp/simple_script.stderr"
     env:
       STARTED_BY: taskmaster

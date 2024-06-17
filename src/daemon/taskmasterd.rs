@@ -19,6 +19,8 @@ use server::logfile::SaveLog;
 use command::Command;
 use server::bidirmsg::BidirectionalMessage;
 use fork::{daemon, fork, Fork};
+use chrono::{DateTime, Local, TimeZone, Utc};
+
 
 fn stop_program_internal(args: Vec<String>, procs: &mut Procs) -> String {
     let mut response = String::new();
@@ -43,8 +45,8 @@ fn stop_program_internal(args: Vec<String>, procs: &mut Procs) -> String {
             let child_opt = {
                 let mut status_guard = status.lock().unwrap();
                 let child_opt = status_guard.child.take();
-                status_guard.state = String::from("stopped");
-                status_guard.start_time = Some(SystemTime::now());
+                status_guard.state = String::from("STOPPED");
+                status_guard.start_time = Some(system_time(SystemTime::now()));
                 child_opt
             };
 
@@ -58,13 +60,11 @@ fn stop_program_internal(args: Vec<String>, procs: &mut Procs) -> String {
                         Ok(mut child) => {
                             match child.kill() {
                                 Ok(_) => {
-                                    let stopped = child.wait().is_ok();
-                                    if stopped {
-                                        let mut processes_guard = processes.lock().unwrap();
-                                        processes_guard.remove(&instance_name);
-                                        response.push_str(&format!("Program {} stopped\n", instance_name));
+                                    let STOPPED = child.wait().is_ok();
+                                    if STOPPED {
+                                        response.push_str(&format!("Program {} stopped.\n", instance_name));
                                     } else {
-                                        response.push_str(&format!("Failed to stop program {}: still running\n", instance_name));
+                                        response.push_str(&format!("Failed to stop program {}: still running.\n", instance_name));
                                     }
                                     locked = true;
                                     break;
@@ -93,6 +93,7 @@ fn stop_program_internal(args: Vec<String>, procs: &mut Procs) -> String {
     }
     response
 }
+
 
 
 
@@ -166,7 +167,7 @@ fn handle_start(args: Vec<String>, channel: BidirectionalMessage, procs: &mut Pr
     for arg in args {
         if let Some(program) = procs.config.programs.get(&arg) {
             if is_program_running(arg.clone(), procs) {
-                response.push_str(&format!("Program {} is already running\n", arg));
+                response.push_str(&format!("Program {} is already running.\n", arg));
             } else {
                 let status = Arc::new(Mutex::new(Status::new(arg.clone(), String::from("starting"))));
                 procs.status.retain(|s| s.lock().unwrap().name != arg);  // Remove any existing status with the same name
@@ -197,7 +198,7 @@ fn handle_restart(args: Vec<String>, channel: BidirectionalMessage, procs: &mut 
 
     let mut response = String::new();
 
-    // First, stop the programs and capture the list of successfully stopped programs
+    // First, stop the programs and capture the list of successfully STOPPED programs
     for arg in args.clone() {
         let stop_response = stop_program_internal(vec![arg.clone()], procs);
         if !stop_response.is_empty() {
@@ -227,29 +228,35 @@ fn handle_restart(args: Vec<String>, channel: BidirectionalMessage, procs: &mut 
 
 fn is_program_running(name: String, procs: &Procs) -> bool {
     let processes_guard = procs.processes.lock().unwrap();
-    processes_guard.keys().any(|key| key.starts_with(&name))
+    processes_guard
+        .iter()
+        .any(|(key, status)| {
+            key.starts_with(&name) && status.lock().unwrap().state == "RUNNING"
+        })
 }
+
 
 fn handle_status(args: Vec<String>, channel: BidirectionalMessage, procs: &Procs) {
     let mut status_message = String::new();
     let processes_guard = procs.processes.lock().unwrap();
+
     if processes_guard.is_empty() {
         status_message.push_str("Nothing to display");
     } else {
         for (name, status) in processes_guard.iter() {
             let status_guard = status.lock().unwrap();
 
+            let pid_str = status_guard.child
+                .as_ref()
+                .map_or("N/A".to_string(), |child| child.lock().unwrap().id().to_string());
+
             let start_time_str = status_guard.start_time
-                .map_or("N/A".to_string(), |t| {
-                    match t.elapsed() {
-                        Ok(duration) => format_duration(duration),
-                        Err(_) => "unknown".to_string(),
-                    }
-                });
+                .map_or("N/A".to_string(), |t| t.format("%Y-%m-%d %H:%M:%S").to_string());
+
 
             status_message.push_str(&format!(
-                "\n{}     {}  since ->    {}\n",
-                status_guard.name, status_guard.state, start_time_str
+                "\n{}       {}       {}      {}\n",
+                status_guard.name, pid_str, status_guard.state, start_time_str
             ));
         }
     }
@@ -259,11 +266,47 @@ fn handle_status(args: Vec<String>, channel: BidirectionalMessage, procs: &Procs
     }
 }
 
+fn system_time(time: SystemTime) -> DateTime<Local> {
+    let datetime: DateTime<Utc> = time.into();
+    datetime.with_timezone(&Local)
+}
 
 
+fn handle_reload(args: Vec<String>, channel: BidirectionalMessage, procs: &mut Procs) {
+    let new_config = get_config();
+    let mut programs_to_start = Vec::new();
 
-fn handle_reload(args: Vec<String>, channel: BidirectionalMessage) {
-    channel.answer(String::from("Hello from reload fun")).unwrap();
+    // Arrêter et supprimer les programmes qui ne sont plus dans la nouvelle configuration
+    let old_programs: Vec<String> = procs.config.programs.keys().cloned().collect();
+    for name in old_programs {
+        if !new_config.programs.contains_key(&name) {
+            let _ = stop_program_internal(vec![name.clone()], procs);
+            procs.status.retain(|s| s.lock().unwrap().name != name);
+            procs.processes.lock().unwrap().remove(&name);
+        }
+    }
+
+    // Démarrer les nouveaux programmes et ceux qui ont autostart changé à true
+    for (name, program) in &new_config.programs {
+        if !procs.config.programs.contains_key(name) || 
+           (procs.config.programs[name].autostart == false && program.autostart) {
+            if program.autostart {
+                programs_to_start.push((name.clone(), program.clone()));
+            }
+        }
+    }
+
+    // Mettre à jour la configuration globale
+    procs.config = new_config;
+
+    // Démarrer les programmes identifiés
+    for (name, program) in programs_to_start {
+        let status = Arc::new(Mutex::new(Status::new(name.clone(), String::from("starting"))));
+        procs.status.push(status.clone());
+        let _ = start_process(name, program, status, procs.processes.clone());
+    }
+
+    channel.answer(String::from("Configuration reloaded")).unwrap();
 }
 
 fn start_process(
@@ -305,8 +348,8 @@ fn start_process(
 
             {
                 let mut status_guard = status_clone.lock().unwrap();
-                status_guard.state = String::from("running");
-                status_guard.start_time = Some(start_time);
+                status_guard.state = String::from("RUNNING");
+                status_guard.start_time = Some(system_time(start_time));
                 status_guard.child = Some(Arc::new(Mutex::new(child)));
             }
 
@@ -317,7 +360,7 @@ fn start_process(
 
             loop {
                 let status_guard = status_clone.lock().unwrap();
-                if status_guard.state == "stopped" {
+                if status_guard.state == "STOPPED" {
                     break;
                 }
                 drop(status_guard);
@@ -327,10 +370,6 @@ fn start_process(
     }
     Ok(())
 }
-
-
-
-
 
 fn load_config(procs: &mut Procs) {
     procs.config = get_config();
@@ -343,13 +382,6 @@ fn load_config(procs: &mut Procs) {
     }
 }
 
-fn format_duration(duration: Duration) -> String {
-    let secs = duration.as_secs();
-    let minutes = secs / 60;
-    let hours = minutes / 60;
-    let days = hours / 24;
-    format!("{}d, {}h, {}m, {}s", days, hours % 24, minutes % 60, secs % 60)
-}
 
 fn main_process() {
     "Daemon is Up".logs(LOGFILE, "Daemon");
@@ -368,7 +400,7 @@ fn main_process() {
             "stop" => handle_stop(command.args, receive, &mut procs),
             "restart" => handle_restart(command.args, receive, &mut procs),
             "status" => handle_status(command.args, receive, &procs),
-            "reload" => handle_reload(command.args, receive),
+            "reload" => handle_reload(command.args, receive, &mut procs),
             _ => panic!("Unknown command: Parsing error"),
         }
     }

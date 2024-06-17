@@ -17,6 +17,7 @@ pub mod checker;
 // use umask::ToUmask;
 
 use checker::{Schecker, Uchecker};
+use chrono::{DateTime, Local};
 use parsing::ProgramConfig;
 use std::{collections::HashMap, process, sync::{Arc, Mutex}, time::SystemTime};
 use serde::{Deserialize, Serialize};
@@ -47,7 +48,7 @@ impl Procs {
 pub struct Status {
     pub name: String,
     pub state: String,
-    pub start_time: Option<SystemTime>,
+    pub start_time: Option<DateTime<Local>>,
     pub child: Option<Arc<Mutex<process::Child>>>,
 }
 
