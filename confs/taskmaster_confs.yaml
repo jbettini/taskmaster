@@ -23,7 +23,7 @@ programs:
   #     ANSWER: 42
   echo_program:
     cmd: "echo"
-    args: ["Hello, World!"]
+    args: ["Hello"]
     numprocs: 1
     umask: 033
     workingdir: "/tmp"
@@ -34,7 +34,7 @@ programs:
     starttime: 1
     stopsignal: "TERM"
     stoptime: 5
-    stdout: "/tmp/echo_program.stdout"
+    stdout: "/home/ramzi/Desktop/Taskmaster/echo_program.stdout"
     stderr: "/tmp/echo_program.stderr"
     env:
       STARTED_BY: taskmaster
@@ -43,7 +43,7 @@ programs:
   simple_script:
     cmd: "python3"
     args: ["test.py"]
-    numprocs: 1
+    numprocs: 3
     umask: 044
     workingdir: "."
     autostart: false
@@ -53,7 +53,7 @@ programs:
     starttime: 1
     stopsignal: "TERM"
     stoptime: 5
-    stdout: "/tmp/simple_script.stdout"
+    stdout: "/home/ramzi/Desktop/Taskmaster/simple_script.stdout"
     stderr: "tmp/simple_script.stderr"
     env:
       STARTED_BY: taskmaster

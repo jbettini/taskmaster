@@ -41,7 +41,7 @@ pub fn taskmasterctl() {
     let us =
         UnixStream::connect(socket_path).expect("Could not create stream");
     loop {
-        let read_line = rl.readline("$$> ");
+        let read_line = rl.readline("\x1b[34mTaskmaster$>\x1b[0m");
         match read_line {
             Ok(line) => { 
                 let _ = rl.add_history_entry(line.as_str());

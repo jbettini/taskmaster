@@ -25,7 +25,7 @@ use serde::{Deserialize, Serialize};
 pub struct Config {
     pub programs: HashMap<String, ProgramConfig>,
 }
-
+#[derive(Debug)]
 pub struct Procs {
     pub config: Config,
     pub status: Vec<Arc<Mutex<Status>>>,

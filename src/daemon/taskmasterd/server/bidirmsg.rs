@@ -37,4 +37,5 @@ impl BidirectionalMessage {
         let ret = rec_stream.recv().expect("Failed to receive");
         ret
     }
+    
 }
