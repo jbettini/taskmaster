@@ -58,7 +58,7 @@ impl Command {
     }
 
     pub fn exchange_with_server(mut unix_stream: &UnixStream, buf: String) {
-        println!("Before : {}", buf);
+        // println!("Before : {}", buf);
         unix_stream
             .write(buf.as_bytes())
             .expect("Failed at writing onto the unix stream");
@@ -71,12 +71,12 @@ impl Command {
         let response = String::from_utf8_lossy(&buffer).to_string().trim_matches('\0').to_string();
         match response.as_str() {
             "Quit" => {
-                println!("{}", response);
+                println!("\n{}\n", response);
                 process::exit(0);
             },
             _ => println!("{}", response),
         }
-        println!("We received this response: {:?}", response);
+        // println!("We received this response: {:?}", response);
     }
 
     pub fn handle_cmd(&mut self, unix_stream: &UnixStream) {

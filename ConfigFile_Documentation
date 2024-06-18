@@ -33,7 +33,7 @@ Required: Yes.
 ########################################################################
 
 NUMPROCS :
-• The number of processes to start and keep running 
+• The number of processes to start and keep RUNNING 
 -----
 Supervisor will start as many instances of this program as named by numprocs. 
 Note that if numprocs > 1, the process_name expression must include %(process_num)s 
@@ -129,13 +129,13 @@ Required: No.
 ########################################################################
 
 STARTTIME :
-• How long the program should be running after it’s started for it to be considered
+• How long the program should be RUNNING after it’s started for it to be considered
 "successfully started"
 -----
 
-The total number of seconds which the program needs to stay running after a startup to consider the start successful 
+The total number of seconds which the program needs to stay RUNNING after a startup to consider the start successful 
 (moving the process from the STARTING state to the RUNNING state). 
-Set to 0 to indicate that the program needn’t stay running for any particular amount of time.
+Set to 0 to indicate that the program needn’t stay RUNNING for any particular amount of time.
 
 *Note*
 Even if a process exits with an “expected” exit code (see exitcodes), 

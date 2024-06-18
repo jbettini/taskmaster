@@ -4,34 +4,57 @@
 #     workingdir: "/tmp   "
 
 programs:
-  nginx:
-    cmd: "/usr/local/bin/nginx -c /etc/nginx/test.conf"
+  # test:
+  #   cmd: "./test"
+  #   numprocs: 1
+  #   umask: 033
+  #   workingdir: /home/ramzi/Desktop/Taskmaster/
+  #   autostart: true
+  #   autorestart: true
+  #   exitcodes: [0, 2]
+  #   startretries: 3
+  #   starttime: 5
+  #   stopsignal: TERM
+  #   stoptime: 10
+  #   stdout: /tmp/test.stdout
+  #   stderr: /tmp/test.stderr
+  #   env:
+  #     STARTED_BY: taskmaster
+  #     ANSWER: 42
+  echo_program:
+    cmd: "echo"
+    args: ["Hello"]
     numprocs: 1
-    umask: 022
-    workingdir: /tmp
-    autostart: true
-    autorestart: unexpected
-    exitcodes: [0, 2]
+    umask: 033
+    workingdir: "/tmp"
+    autostart: false
+    autorestart: false
+    exitcodes: [0]
     startretries: 3
-    starttime: 5
-    stopsignal: TERM
-    stoptime: 10
-    stdout: /tmp/nginx.stdout
-    stderr: /tmp/nginx.stderr
+    starttime: 1
+    stopsignal: "TERM"
+    stoptime: 5
+    stdout: "/home/ramzi/Desktop/Taskmaster/echo_program.stdout"
+    stderr: "/tmp/echo_program.stderr"
     env:
       STARTED_BY: taskmaster
       ANSWER: 42
-  vogsphere:
-    cmd: "/usr/local/bin/vogsphere-worker --no-prefork"
-    workingdir: /tmp
-    numprocs: 8
-    umask: 077
-    autostart: true
-    autorestart: unexpected
+
+  simple_script:
+    cmd: "python3"
+    args: ["test.py"]
+    numprocs: 3
+    umask: 044
+    workingdir: "."
+    autostart: false
+    autorestart: false
     exitcodes: [0]
     startretries: 3
-    starttime: 5
-    stopsignal: USR1
-    stoptime: 10
-    stdout: /tmp/vgsworker.stdout
-    stderr: /tmp/vgsworker.stderr
+    starttime: 1
+    stopsignal: "TERM"
+    stoptime: 5
+    stdout: "/home/ramzi/Desktop/Taskmaster/simple_script1.stdout"
+    stderr: "tmp/simple_script.stderr"
+    env:
+      STARTED_BY: taskmaster
+      ANSWER: 42

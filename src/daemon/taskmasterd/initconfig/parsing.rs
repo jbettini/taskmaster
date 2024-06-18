@@ -18,17 +18,20 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 
 pub struct ProgramConfig {
-    pub cmd: String, 
+    pub cmd: String,
+
+    pub args: Vec<String>,
+
     #[serde(default = "default_numprocs")]
     pub numprocs: u32,
     
     #[serde(default = "default_umask")]
     pub umask: String,
     
-    // #[serde(default = "default_workingdir")]
+    #[serde(default = "default_workingdir")]
     pub workingdir: String,
     
     #[serde(default = "default_autostart")]
@@ -52,8 +55,8 @@ pub struct ProgramConfig {
     #[serde(default = "default_stoptime")]
     pub stoptime: u32,
     
-    pub stdout: Option<String>,
-    pub stderr: Option<String>,
+    pub stdout: String,
+    pub stderr: String,
     pub env: Option<HashMap<String, String>>,
 }
 
@@ -63,9 +66,9 @@ fn default_numprocs() -> u32 {
 fn default_umask() -> String {
     String::from("022")
 }
-// fn default_workingdir() -> String {
-    
-// }
+fn default_workingdir() -> String {
+    String::from("/tmp")
+}
 fn default_autostart() -> bool {
     true
 }

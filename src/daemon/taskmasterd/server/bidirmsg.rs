@@ -12,6 +12,7 @@
 
 use std::sync::mpsc::{self, Sender, Receiver};
 
+#[derive(Clone)]
 pub struct BidirectionalMessage {
     pub send_stream: Sender<String>,
     pub message: String,
@@ -36,4 +37,5 @@ impl BidirectionalMessage {
         let ret = rec_stream.recv().expect("Failed to receive");
         ret
     }
+    
 }

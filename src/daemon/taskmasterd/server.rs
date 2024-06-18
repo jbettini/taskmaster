@@ -24,8 +24,8 @@ use std::os::unix::io::AsRawFd;
 use std::sync::Mutex;
 use std::time::Duration;
 
-const LOGFILE:&'static str = "/Users/xtem/Desktop/Taskmaster/confs/logfile";
-const SOCK_PATH: &'static str = "/Users/xtem/Desktop/Taskmaster/confs/mysocket.sock";
+const SOCK_PATH: &'static str = "/home/ramzi/Desktop/Taskmaster/confs/mysocket.sock";
+const LOGFILE: &'static str = "/home/ramzi/Desktop/Taskmaster/confs/logfile";
 
 // fn handle_client_stream(mut unix_stream: UnixStream, daemon: Sender<BidirectionalMessage>) -> Result<bool, io::Error> {
 fn handle_client_stream(mut unix_stream: UnixStream, daemon: Mutex<Sender<BidirectionalMessage>>) -> Result<bool, io::Error> {
@@ -53,7 +53,7 @@ fn handle_client_stream(mut unix_stream: UnixStream, daemon: Mutex<Sender<Bidire
                         .write(ret.as_bytes())
                         .expect("Failed at writing onto the unix stream");
                     // buffer.fill();
-                    thread::sleep(Duration::from_secs(10));
+                    //thread::sleep(Duration::from_secs(5));
                 }
             }
             Err (_err) => panic!("Error reading"),
