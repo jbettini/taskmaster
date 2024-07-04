@@ -3,3 +3,5 @@ Cargo.lock
 simple_script.stdout
 simple_script1.stdout
 echo_program.stdout
+target
+.target
